@@ -1,0 +1,263 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotel Booking</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Select2 -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .navbar-brand {
+      font-weight: bold;
+    }
+    .imgowner {
+      background: url("{% static 'images/hotel1bg.jpeg' %}") no-repeat center center/cover;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .imgowner::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .imgowner h1 {
+      color: white;
+      font-size: 36px;
+      z-index: 1;
+      position: relative;
+    }
+    .card.filter-card {
+      border-radius: 15px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .hotel-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      border-radius: 15px;
+    }
+    .hotel-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .hotel-card img {
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      height: 200px;
+      object-fit: cover;
+    }
+    footer {
+      background-color: #343a40;
+      color: #fff;
+      padding: 20px 0;
+      margin-top: 4rem;
+    }
+    .form-label {
+      font-weight: 500;
+    }
+    .filter-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .select2-container--default .select2-selection--multiple {
+      border: 1px solid #ced4da;
+      border-radius: 0.375rem;
+      padding: 0.375rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">Hotel Booking</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        {% if request.user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'signout' %}">Sign Out</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'signin' %}">Sign In</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign Up</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="imgowner">
+  <h1>Find Hotels Travelers Love</h1>
+</div>
+
+<!-- Filters -->
+<div class="container mt-5">
+  <div class="card filter-card p-4">
+    <div class="filter-title"><i class="fas fa-sliders-h me-2"></i>Search & Filters</div>
+    <form method="get">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="searchInput" class="form-label">Search</label>
+          <input type="search" class="form-control" id="searchInput" name="searchInput" value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+          <label for="sortSelect" class="form-label">Sort By</label>
+          <select class="form-select" id="sortSelect" name="sortSelect">
+            <option value="">Choose</option>
+            <option value="low_to_high" {% if sort_by == 'low_to_high' %}selected{% endif %}>Price: Low to High</option>
+            <option value="high_to_low" {% if sort_by == 'high_to_low' %}selected{% endif %}>Price: High to Low</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="price" class="form-label">Max Price (₹)</label>
+          <input type="number" class="form-control" id="price" name="price" value="{{ price }}">
+        </div>
+        <div class="col-md-2">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input type="date" class="form-control" id="startDate" name="startDate" min="{{ date }}" value="{{ startdate }}">
+        </div>
+        <div class="col-md-2">
+          <label for="endDate" class="form-label">End Date</label>
+          <input type="date" class="form-control" id="endDate" name="endDate" min="{{ date }}" value="{{ enddate }}">
+        </div>
+        <div class="col-md-6">
+          <label for="selectAmenity" class="form-label">Select Amenities</label>
+          <select class="form-select" id="selectAmenity" name="selectAmenity" multiple>
+            {% for amenity in amenities %}
+              <option value="{{ amenity.amenity_name }}" {% if amenity.amenity_name in selected_amenities %}selected{% endif %}>
+                {{ amenity.amenity_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-12 d-grid mt-2">
+          <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Hotels -->
+<div class="container mt-5">
+  <h4 class="mb-4">Showing {{ hotels|length }} out of {{ total_hotels }} results</h4>
+  <div class="row">
+    {% for hotel in hotels %}
+    <div class="col-md-4 mb-4">
+      <div class="card hotel-card">
+        {% if hotel.hotelimages_set.first %}
+          <img src="{{ hotel.hotelimages_set.first.images.url }}" class="card-img-top" alt="{{ hotel.hotel_name }}">
+        {% else %}
+          <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="No image available">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ hotel.hotel_name }}</h5>
+          <p class="card-text">{{ hotel.description|truncatechars:100 }}</p>
+          <p class="text-primary fw-bold">₹{{ hotel.hotel_price }}</p>
+          <p class="mb-1"><strong>Amenities:</strong></p>
+          <ul class="mb-2">
+            {% for amenity in hotel.amenities.all %}
+              <li>{{ amenity.amenity_name }}</li>
+            {% empty %}
+              <li>No amenities listed</li>
+            {% endfor %}
+          </ul>
+
+          {% if request.user.is_authenticated %}
+            <button type="button" class="btn btn-success w-100 book-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#bookingModal"
+                    data-hotel-id="{{ hotel.id }}"
+                    data-hotel-name="{{ hotel.hotel_name }}">
+              Book Now
+            </button>
+          {% else %}
+            <a href="{% url 'signin' %}" class="btn btn-outline-primary w-100">Log in to Book</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Modal (Single global one) -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" id="bookingForm">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bookingModalLabel">Booking</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label>Start Date</label>
+          <input type="date" name="start_date" class="form-control" min="{{ date }}" required>
+          <label class="mt-2">End Date</label>
+          <input type="date" name="end_date" class="form-control" min="{{ date }}" required>
+          <label class="mt-2">Payment Type</label>
+          <select name="booking_type" class="form-select" required>
+            <option value="Pre Paid">Pre Paid</option>
+            <option value="Post Paid">Post Paid</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Proceed</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="text-center">
+  <div class="container">
+    <p>&copy; 2025 Hotel Booking. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Booking Modal Logic -->
+<script>
+  $(document).ready(function () {
+    $('#selectAmenity').select2({
+      placeholder: "Select amenities",
+      allowClear: true,
+      width: '100%'
+    });
+
+    $('.book-btn').on('click', function () {
+      const hotelId = $(this).data('hotel-id');
+      const hotelName = $(this).data('hotel-name');
+      $('#bookingModalLabel').text('Booking - ' + hotelName);
+      $('#bookingForm').attr('action', `/book/${hotelId}/`);
+
+    });
+  });
+</script>
+
+</body>
+</html>

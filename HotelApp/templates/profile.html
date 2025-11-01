@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ user.username }}'s Profile</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .sidebar {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .booking-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.07);
+    }
+
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: white;
+    }
+
+    .Pending { background-color: #f0ad4e; }
+    .Accepted { background-color: #5cb85c; }
+    .Rejected { background-color: #d9534f; }
+
+    .navbar-brand {
+      font-weight: bold;
+    }
+
+    .table th, .table td {
+      vertical-align: middle;
+    }
+
+    .nav-link {
+      color: #000;
+    }
+    .nav-link:hover {
+      color: #0d6efd;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        margin-bottom: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'index' %}">🏨 Hotel Booking</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link text-secondary" href="{% url 'signout' %}">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Profile Page -->
+<div class="container mt-4">
+  <div class="row">
+    
+    <!-- Left: Sidebar/Profile Info -->
+    <div class="col-md-4">
+      <div class="sidebar text-center">
+        <i class="fa fa-user-circle fa-5x text-secondary mb-3"></i>
+        <h4>{{ user.username }}</h4>
+        <p class="text-muted mb-1">{{ user.email }}</p>
+        <hr>
+        <p><strong>Member Since:</strong><br> {{ user.date_joined|date:"F j, Y" }}</p>
+        <a href="{% url 'index' %}" class="btn btn-outline-primary btn-sm mt-2"><i class="fas fa-home"></i> Home</a>
+      </div>
+    </div>
+
+    <!-- Right: Booking List -->
+    <div class="col-md-8">
+      <div class="booking-card">
+        <h5 class="mb-4">📋 Your Hotel Bookings</h5>
+        
+        {% if bookings %}
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Hotel</th>
+                <th>Dates</th>
+                <th>Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ booking.hotel.hotel_name }}</td>
+                <td>
+                  <strong>{{ booking.start_date }}</strong> → {{ booking.end_date }}
+                </td>
+                <td>{{ booking.booking_type }}</td>
+                <td>
+                  <span class="status-badge {{ booking.status }}">{{ booking.status }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <p class="text-muted">You have not made any bookings yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
