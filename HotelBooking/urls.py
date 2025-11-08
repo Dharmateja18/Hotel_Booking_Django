@@ -30,7 +30,10 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
 
     path('book/<int:hotel_id>/', views.book_hotel, name='book_hotel'),
-    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    ] 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 
