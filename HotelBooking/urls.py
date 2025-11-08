@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('HotelApp.urls')),
+    path('', views.index, name='index'),
     path('signup/',views.signup,name='signup'),
     path('signin/',views.signin,name='signin'),
     path('signout/',views.signout,name='signout'),
